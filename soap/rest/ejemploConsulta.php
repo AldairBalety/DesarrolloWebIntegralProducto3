@@ -1,29 +1,38 @@
 <?php
-    require 'Consulta.php';
+	  require_once 'Consulta.php';
     $servidor='localhost'; 
     $basedatos='producto3';
     $usuario='root';
     $password='';
-    $sqlcon= "SELECT * FROM usuarios";
-    $tipoConsulta =0; //0 - select, 1 - insert, update, delete
-    $http_accept='application/jso';
-    //$c= new Consulta($servidor, $basedatos, $usuario,$password, 
-      //              $sqlcon, $tipoConsulta, $http_accept);
-
-    
-    $c= new Consulta('localhost','producto3', 'root','',$sqlcon, $tipoConsulta,'application/jso' );
-                    
-                    
-    /*$c= new Consulta('localhost', 'producto3', 'root','', $sql, 
-                     $tipoConsulta, 'application/json');
-     echo $c->respuesta;
-     */
-    
-    //PRODCUTO 3 HACER LA CLASE CONCULTA
-    //en el constructor se se va a pasar
-    //hago el acceso con laminas, le quito el formato y lo muestro como en los ejemplos
-    echo $c->respuesta;
-    // la respuesta me la dara en formato json
-
-    
+    $cad = "";
+    $response = "";
+    $c = new Consulta($servidor, $basedatos, $usuario, $password);
+    //http://localhost/producto3/soap/rest/ejemploConsulta.php/
+    switch($_SERVER['REQUEST_METHOD']){
+        case 'GET':
+            $cad="GET";
+            $response = $c->getUser("javnol@gmail.com");
+            break;
+        case "POST":
+            $cad="POST";
+            $email = $_POST['email'];
+            $clave = $_POST['clave'];
+            $response = $c->postUser($email, $clave);
+            break;
+        case "PUT":
+            parse_str(file_get_contents('php://input'), $_PUT); 
+            $cad="PUT";
+            $emailOrigin = $_PUT['emailorigin'];
+            $email = $_PUT['email'];
+            $clave = $_PUT['clave'];
+            $response = $c->putUser($emailOrigin, $email, $clave);
+            break;
+        case 'DELETE':
+            parse_str(file_get_contents('php://input'), $_PUT); 
+            $cad="DELETE";
+            $email = $_PUT['email'];
+            $response = $c->deleteUser($email);
+            break;
+    }
+    echo $cad;
 ?>

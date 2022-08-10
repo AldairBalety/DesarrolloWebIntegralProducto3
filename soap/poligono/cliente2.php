@@ -1,39 +1,44 @@
 <?php
-    header("Content-Type: image/png");
+	header("Content-Type: image/png");
 	require_once '../../vendor/autoload.php';
-	use Laminas\Soap\Client;
-	
-	$url = "http://localhost/producto3/soap/poligono/servidor.php";
-	
-	$ac = array(
-		'location' => $url,
-		'uri' => "http://localhost/producto3/soap/poligono/"
+	require_once 'Punto.php';
+	$url = 'http://localhost/producto3/soap/poligono/servidor.php';
+	$cliente = new Laminas\Soap\Client(
+		null,
+		array(
+			'soap_version' => 2,
+			'location' => $url,
+			'uri' => "http://localhost/producto3/soap/poligono/"
+		)
 	);
-	//http://localhost/producto3/soap/poligono/cliente.php?l=4&r=50&cx=50&cy=50
-	$lados=$_GET['l'];
-	$radio=$_GET['r'];
-	$centrox=$_GET['cx'];
-	$centroy=$_GET['cy'];
-	$cliente = new Client(null, $ac);
-	$ap=$cliente->calcularPuntosPoligonoEnCirculo($lados, $radio, $centrox, $centroy);
-	$nea = count($ap);
+	// http://localhost/producto3/soap/poligono/cliente.php?l=3&cx=50&cy=50&r=50
+	$ap = $cliente->calcPtosPoligonoEnCirculo($_GET['l'], $_GET['cx'], $_GET['cy'], $_GET['r']);
 	
-    $ancho =2*$radio;
-    $img = imagecreate($ancho, $ancho);
-    $negro = imagecolorallocate($img, 0, 0, 0);
-    $blanco = imagecolorallocate($img, 255, 255, 255);
-    $rojo = imagecolorallocate($img, 255, 0, 0);
-    imagestring($img, 1, 5, 5,  "A Simple Text String", $blanco);
-
-    imageellipse($img, $centrox, $centroy, $ancho, $ancho, $rojo);
-
-    imageline($img, $ap[0]->x, $ap[0]->y, $centrox, $centroy, $blanco);
-    imageline($img, $ap[1]->x, $ap[1]->y, $centrox, $centroy, $blanco);
-    imageline($img, $ap[0]->x, $ap[0]->y, $ap[1]->x, $ap[1]->y, $blanco);
-
-	//Dibujar el poligono y las lineas de cada punto del poligono al centro
-
-
-    imagepng($img);
-    imagedestroy($img);
+	$ancho = 2 * $_GET['r'];
+	$img = imagecreate($ancho, $ancho);
+	$blanco = imagecolorallocate($img, 255, 255, 255);
+	$negro = imagecolorallocate($img, 0, 0, 0);
+	$rojo = imagecolorallocate($img, 255, 0, 0);
+	// Dibujar la elipse
+	
+	$nea = count($ap);
+	$arrptos = array();
+	for($i=0; $i<$nea; $i++){
+		$arrptos[] = $ap[$i]->x;
+		$arrptos[] = $ap[$i]->y;
+	}
+	$verde = imagecolorallocate($img, 0, 128, 0);
+	$valores = array(
+		$ap[0]->y, $ap[0]->x,
+		$ap[1]->y, $ap[1]->x,
+		$ap[2]->y, $ap[2]->x,
+	);
+	imagefilledpolygon($img, $arrptos, $nea, $rojo);
+	// Hacer el ciclo pára mostrar del polígono y las líneas del centro a los ptos de 
+	// los lados del polígono.
+	// Utilizar el $ap para exhibir o dibujar el polígono
+	// 2da. PARTE DEL PRODUCTO 3
+	imagepng($img);
+	imagedestroy($img);
+	
 ?>

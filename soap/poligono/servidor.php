@@ -1,24 +1,25 @@
 <?php
 	require_once '../../vendor/autoload.php';
 	require_once 'Punto.php';
-	use Laminas\Soap\Server;
-	
-	function calcularPuntosPoligonoEnCirculo($lados, $radio, $centroX, $cebtroY){ 
-		$arrptos= Array();
-		if($lados>2){
-			$anginirad = 0;
-			$anglado = 2 * M_PI / $lados;
-			for($i=0; $i<$lados; $i++){
-				$arrptos[$i] = new Punto($centroX+$radio*cos($anginirad),
-										 $centroY+$radio*sin($anginirad));
-				$anginirad = $anginirad + $anglado;
+	class Pol {
+		public function calcPtosPoligonoEnCirculo($lados, $cx, $cy, $radio){
+			$arrptos = Array();
+			if($lados>2){
+				$anginirad = 0;
+				$anglado = 2 * M_PI / $lados;
+				for($i=0; $i<$lados; $i++){
+					$arrptos[$i] = new Punto(
+						$cx + $radio * cos($anginirad),
+						$cy + $radio * sin($anginirad)
+					);
+					$anginirad += $anglado;
+				}
 			}
+			return $arrptos;
 		}
-		return $arrptos; 
 	}
-
-	$ac = array('uri' => "http://localhost/producto3/soap/poligono/"); 
-	$server = new Server(null, $ac);
-	$server->addFunction("calcularPuntosPoligonoEnCirculo");
-	$server->handle();
+	$ac = ['uri' => "http://localhost/producto3/soap/poligono/"]; 
+	$servidor = new Laminas\Soap\Server(null, $ac);
+	$servidor->setClass("Pol");
+	$servidor->handle();
 ?>
